@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wuthering Heights — Interpreting Literature Through Interface Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&family=Inter:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0D0D0D;
+    --text: #F2EDE4;
+    --accent: #591E2E;
+    --surface: #4F4659;
+    --muted: #997864;
+
+    --measure: 660px;
+    --pad-x: clamp(24px, 6vw, 84px);
+    --section-y: clamp(110px, 17vh, 230px);
+
+    --display: 'Playfair Display', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.8;
+    font-weight: 400;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: var(--text); }
+
+  /* ---------- layout primitives ---------- */
+  .section { padding: var(--section-y) var(--pad-x); position: relative; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  .measure { max-width: var(--measure); margin-left: auto; margin-right: auto; }
+
+  /* ---------- repeating component: section label ---------- */
+  .label {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- section opener (number + label + title) ---------- */
+  .opener { display: flex; flex-direction: column; gap: 22px; }
+  .opener.center { align-items: center; text-align: center; }
+  .num {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(42px, 7vw, 76px);
+    line-height: 0.9;
+    color: var(--surface);
+    letter-spacing: 0.01em;
+  }
+  .stitle {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(33px, 4.6vw, 48px);
+    line-height: 1.12;
+    color: var(--text);
+    max-width: 16ch;
+    text-wrap: balance;
+  }
+  .opener.center .stitle { max-width: 20ch; }
+
+  /* ---------- subheadings (the questions) + body ---------- */
+  .qblock { margin-top: clamp(48px, 6vw, 86px); }
+  .qblock:first-of-type { margin-top: clamp(40px, 5vw, 64px); }
+  .subhead {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(23px, 2.6vw, 28px);
+    line-height: 1.28;
+    color: var(--text);
+    margin-bottom: 26px;
+    max-width: 28ch;
+    text-wrap: pretty;
+  }
+  .body { color: var(--text); max-width: var(--measure); }
+  .body + .body { margin-top: 1.5em; }
+  .qindex {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  /* ---------- repeating component: pull quote ---------- */
+  .pull {
+    border-left: 2px solid var(--accent);
+    padding-left: clamp(22px, 3vw, 38px);
+    margin: clamp(56px, 7vw, 104px) 0;
+    max-width: 640px;
+  }
+  .pull p {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(19px, 2.1vw, 21px);
+    line-height: 1.62;
+    color: var(--text);
+  }
+  .pull cite {
+    display: block;
+    margin-top: 20px;
+    font-family: var(--sans);
+    font-style: normal;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .pull.center { margin-left: auto; margin-right: auto; }
+
+  /* ---------- editorial full-bleed image (raw atmospheric element, no frame/radius/shadow) ---------- */
+  .editorial {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;
+    margin-top: clamp(64px, 8vw, 110px);
+  }
+  .editorial img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .editorial .caption {
+    padding-top: 18px;
+    margin: 0 auto;
+    max-width: 1180px;
+    width: 100%;
+  }
+
+  /* ---------- repeating component: image caption + atmospheric band ---------- */
+  .band {
+    margin: 0 calc(-1 * var(--pad-x));
+    position: relative;
+  }
+  .band .plate {
+    height: clamp(360px, 64vh, 620px);
+    background-color: #131215;
+    background-image:
+      repeating-linear-gradient(125deg, rgba(79,70,89,0.16) 0 1px, transparent 1px 16px),
+      radial-gradient(120% 140% at 50% 12%, rgba(89,30,46,0.20) 0%, transparent 60%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid rgba(153,120,100,0.18);
+    border-bottom: 1px solid rgba(153,120,100,0.18);
+  }
+  .band .hint {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    background: rgba(13,13,13,0.55);
+    border: 1px solid rgba(153,120,100,0.28);
+    padding: 9px 16px;
+    border-radius: 2px;
+    text-align: center;
+    max-width: 80%;
+  }
+  .caption {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+    padding: 18px var(--pad-x) 0;
+    max-width: 640px;
+  }
+
+  /* ---------- two-column: meta / analysis split ---------- */
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.5fr);
+    gap: clamp(48px, 7vw, 124px);
+    align-items: start;
+  }
+  .split .analysis { max-width: 640px; }
+  .split .analysis .body { max-width: none; }
+
+  /* ---------- three-column: generational structure (section 07 only) ---------- */
+  .triad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 0 clamp(36px, 4vw, 72px);
+    margin-top: clamp(56px, 6vw, 88px);
+  }
+  .triad .gen { grid-row: 2; }
+  .gen .genhead {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 26px;
+    margin-bottom: 28px;
+  }
+  .gen .names {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(20px, 2vw, 25px);
+    line-height: 1.22;
+    color: var(--text);
+  }
+  .gen .names .amp { color: var(--accent); font-style: italic; padding: 0 4px; }
+  .gen .body { font-size: 15px; line-height: 1.74; }
+
+  /* ---------- cover (section 00) ---------- */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: clamp(60px, 12vh, 140px) var(--pad-x);
+    position: relative;
+    background-image: url('images/cover.jpg');
+    background-size: cover;
+    background-position: center 30%;
+    background-repeat: no-repeat;
+  }
+  /* #0D0D0D overlay so the title reads clearly; house remains visible through the dark */
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(13, 13, 13, 0.66);
+    z-index: 0;
+  }
+  .cover > * { position: relative; z-index: 1; }
+  .cover .label { margin-bottom: clamp(40px, 7vh, 72px); }
+  .cover h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(52px, 11.5vw, 132px);
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .cover .sub {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(20px, 2.5vw, 28px);
+    line-height: 1.4;
+    color: var(--muted);
+    margin-top: clamp(28px, 4vh, 44px);
+    max-width: 22ch;
+  }
+  .scrollcue {
+    position: absolute;
+    bottom: clamp(34px, 6vh, 58px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .scrollcue span {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--muted);
+  }
+  .scrollcue .line {
+    width: 1px;
+    height: 54px;
+    background: linear-gradient(var(--muted), transparent);
+    transform-origin: top;
+    animation: breathe 3.4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.35; transform: scaleY(0.7); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+
+  /* ---------- colophon ---------- */
+  .colophon {
+    border-top: 1px solid rgba(153,120,100,0.2);
+    padding: clamp(70px, 9vw, 120px) var(--pad-x) clamp(90px, 11vw, 150px);
+  }
+  .colophon .grid {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: clamp(40px, 6vw, 100px);
+  }
+  .colophon .note {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--muted);
+    max-width: 60ch;
+  }
+  .colophon .note strong { color: var(--text); font-weight: 500; }
+
+  /* ---------- left-edge scroll progress (the only navigational feedback) ---------- */
+  .progress-track {
+    position: fixed; top: 0; left: 0;
+    width: 1px; height: 100vh;
+    background: var(--accent);
+    z-index: 50;
+  }
+  .progress-fill {
+    position: fixed; top: 0; left: 0;
+    width: 1px; height: 0;
+    background: var(--text);
+    z-index: 51;
+  }
+
+  /* ---------- cover tagline ---------- */
+  .cover .cover-tagline {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.75;
+    color: var(--muted);
+    margin-top: clamp(34px, 5vh, 58px);
+    max-width: 44ch;
+  }
+
+  /* ---------- S01 — year anchor ---------- */
+  .year-anchor {
+    text-align: left;
+    margin: clamp(16px, 3vw, 36px) 0 clamp(44px, 6vw, 72px);
+  }
+  .year-anchor .year {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(96px, 13vw, 140px);
+    line-height: 0.86;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+  .year-anchor .year-label {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  /* ---------- marquee breath (between 02 and 03) ---------- */
+  .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    padding: clamp(60px, 9vw, 130px) 0;
+    background: var(--bg);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  }
+  .marquee-track {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee 64s linear infinite;
+  }
+  .marquee-track span {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(20px, 2.6vw, 30px);
+    color: var(--surface);
+    padding: 0 1.6em;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ---------- S03 — horizontal interpretation panels (only horizontal interaction) ---------- */
+  .hpanels {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;
+    margin-top: clamp(72px, 10vw, 130px);
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .hpanels::-webkit-scrollbar { display: none; }
+  .hpanels.dragging { cursor: grabbing; }
+  .hpanel {
+    flex: 0 0 100vw;
+    scroll-snap-align: center;
+    min-height: clamp(330px, 54vh, 480px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: clamp(40px, 6vw, 80px) var(--pad-x);
+    border-left: 1px solid rgba(79, 70, 89, 0.32);
+  }
+  .hpanel:first-child { border-left: none; }
+  .hpanel .panel-label {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    margin-bottom: clamp(22px, 3vw, 36px);
+  }
+  .hpanel p {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(26px, 3.6vw, 36px);
+    line-height: 1.26;
+    color: var(--text);
+    max-width: 17ch;
+  }
+
+  /* ---------- S05 — Heights / Grange contrast block ---------- */
+  .contrast {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: clamp(28px, 4vw, 56px);
+    margin: clamp(48px, 6vw, 80px) 0 clamp(8px, 2vw, 16px);
+    align-items: start;
+  }
+  .contrast .divider { width: 1px; align-self: stretch; background: var(--surface); }
+  .contrast .col-head {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: clamp(20px, 2.5vw, 30px);
+  }
+  .contrast .lines p {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 2;
+    color: var(--text);
+  }
+
+  /* ---------- S06 — revenge steps ---------- */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(52px, 7vw, 92px);
+    margin: clamp(56px, 7vw, 96px) 0;
+  }
+  .step { position: relative; }
+  .step .step-num {
+    position: absolute;
+    top: -0.2em;
+    left: -0.04em;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(72px, 9vw, 104px);
+    line-height: 0.9;
+    color: var(--accent);
+    opacity: 0.4;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .step .step-body {
+    position: relative;
+    z-index: 1;
+    padding-left: clamp(44px, 6vw, 88px);
+    padding-top: clamp(22px, 3vw, 40px);
+  }
+  .step .step-title {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(24px, 2.8vw, 28px);
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .step .step-text {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--text);
+    max-width: 46ch;
+  }
+
+  /* ---------- S07 — connecting repetition rule (Gen1 + Gen2 only) ---------- */
+  .triad .repeat-line {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    height: 1px;
+    background: var(--accent);
+    margin-bottom: clamp(28px, 3vw, 44px);
+  }
+
+  /* ---------- S08 — entry quote block ---------- */
+  .quote-entry {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: clamp(28px, 4vh, 50px);
+  }
+  .quote-entry .big-quote {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(30px, 4.4vw, 48px);
+    line-height: 1.28;
+    color: var(--text);
+    max-width: 20ch;
+    text-wrap: balance;
+  }
+  .quote-entry .note {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  /* ---------- S10 — authored closing block ---------- */
+  .closing {
+    text-align: center;
+    max-width: 760px;
+    margin: clamp(72px, 10vw, 130px) auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(24px, 3vw, 36px);
+  }
+  .closing .rule { width: clamp(120px, 22vw, 240px); height: 1px; background: var(--accent); }
+  .closing .manifesto {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 2.1;
+    max-width: 42ch;
+  }
+  .closing .credit {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--surface);
+    max-width: 52ch;
+  }
+
+  /* ---------- slow reveal (visible by default; only hidden once JS arms it) ---------- */
+  html.armed .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1.4s cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  html.armed .reveal.in { opacity: 1; transform: none; }
+
+  /* S09 — opacity-only paragraph emergence (1.2s, no movement) */
+  html.armed .reveal.fade-only { transform: none; transition: opacity 1.2s ease; }
+  html.armed .reveal.fade-only.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.armed .reveal { opacity: 1 !important; transform: none !important; transition: none; }
+    .scrollcue .line { animation: none; opacity: 0.6; }
+    .marquee-track { animation: none; }
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-height: 680px) {
+    .scrollcue { display: none; }
+  }
+
+  @media (max-width: 860px) {
+    body { font-size: 16px; }
+    .split { grid-template-columns: 1fr; gap: clamp(36px, 8vw, 56px); }
+    .triad { display: block; }
+    .triad .repeat-line { display: none; }
+    .triad .gen { grid-row: auto; }
+    .gen { padding-top: clamp(40px, 8vw, 56px); }
+    .gen:first-child { padding-top: 0; }
+    .gen + .gen { border-top: 1px solid rgba(153,120,100,0.2); }
+    .contrast { grid-template-columns: 1fr; gap: clamp(8px, 4vw, 20px); }
+    .contrast .divider { display: none; }
+    .contrast .divider + .col { margin-top: clamp(30px, 7vw, 44px); }
+  }
+</style>
+</head>
+<body>
+  <div class="progress-track" aria-hidden="true"></div>
+  <div class="progress-fill" id="progress" aria-hidden="true"></div>
+
+  <!-- ============================ 00 — COVER ============================ -->
+  <header class="section cover" data-screen-label="00 · Cover">
+    <p class="label">Introduction</p>
+    <h1 class="reveal">Wuthering<br />Heights</h1>
+    <p class="cover-tagline reveal">This is not a love story. It is a study in what love does to people who cannot survive without it.</p>
+  </header>
+
+  <!-- ============================ 01 — ORIGIN ============================ -->
+  <section class="section" data-screen-label="01 · Origin">
+    <div class="wrap measure">
+      <div class="opener center reveal">
+        <span class="num">01</span>
+        <p class="label">Origin</p>
+        <h2 class="stitle">Where the story was born</h2>
+      </div>
+
+      <div class="year-anchor reveal">
+        <div class="year">1847</div>
+        <p class="year-label">Year of first publication</p>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">How did gender restrictions shape the novel's reception?</h3>
+        <p class="body">In the Victorian era, women were confined by rigid social expectations. Their primary role was to embody the ideal of the "angel in the house" - passive, domestic and morally contained. Professional education and creative self-expression were not encouraged, and a woman artist regularly faced open rejection, moral lectures or worse. When Wuthering Heights was published, it became a direct challenge to Victorian morality through its wild energy and characters that contemporary critics described as "more savage than the savages who lived before the time of Homer." The public was shocked by the depiction of "half-savage love" and "brutal cruelty," considering such themes entirely unacceptable and morally "unhealthy" for a woman to have written. Any expression of emotional excess or rebellion was read as a sign of hysteria or psychological instability - a label used systematically to discredit women's voices.</p>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">Why was the novel published under the name Ellis Bell?</h3>
+        <p class="body">The decision to publish under the pseudonym Ellis Bell was a strategic act of resistance - a fight for the right to have a voice in a literary world considered exclusively male. Emily Brontë and her sisters consciously chose masculine names (Currer, Ellis and Acton Bell) to ensure their work would be judged on its literary quality rather than filtered through the prejudiced lens of the author's gender. At a time when a woman's intellectual freedom was directly dependent on her material and social status, the pseudonym allowed Emily to "break her role as a woman" and write characters stripped of traditional Victorian virtue. Even after the true authorship was revealed, Charlotte Brontë felt the need to defend and "sanitise" the text in prefaces, attempting to justify the wildness and cruelty of her sister's imagery to an outraged public.</p>
+      </div>
+
+      <figure class="editorial reveal">
+        <img src="images/manuscript.jpg" alt="An antique manuscript lying open on a wooden desk, lit by a single candle." />
+        <figcaption class="caption">A woman writing under a man's name. Ellis Bell, 1847.</figcaption>
+      </figure>
+
+      <blockquote class="pull center reveal">
+        <p style="font-family: &quot;Playfair Display&quot;">The reader is scarcely ever permitted a glimpse of sunshine.</p>
+        <cite>Early review, 1848</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- ============================ 02 — PHENOMENON ============================ -->
+  <section class="section" data-screen-label="02 · Phenomenon">
+    <div class="wrap split">
+      <div class="opener reveal">
+        <span class="num">02</span>
+        <p class="label">Phenomenon</p>
+        <h2 class="stitle">The mystery behind its enduring power</h2>
+      </div>
+      <div class="analysis">
+        <div class="qblock reveal">
+          <span class="qindex">
+</span>
+          <h3 class="subhead">What is the phenomenon of this novel?</h3>
+          <p class="body">The phenomenon of Wuthering Heights lies in its striking originality and force, which gave it a singular place in the canon of English literature. The novel departed decisively from the Victorian norms of the time, focusing not on a broad panorama of society but on the intense inner world of individual experience. Emily Brontë's psychological insights have been described as "startlingly modern," and the depth and ambiguity of her characters continues to inspire new interpretations. The novel became a unique hybrid combining elements of gothic tradition, romanticism and austere realism, effectively transcending the boundaries of established literary genre. Brontë created a fictional world that simultaneously frightens, challenges moral assumptions and draws the reader in through its elemental energy.</p>
+        </div>
+        <div class="qblock reveal">
+          <span class="qindex">ii</span>
+          <h3 class="subhead">Why does the story of Catherine and Heathcliff still produce strong emotion?</h3>
+          <p class="body">The story of Catherine and Heathcliff continues to generate deep emotional response because of its depiction of "half-savage love" and an unprecedented spiritual unity between two people. Their bond exceeds the boundaries of ordinary earthly feeling: Catherine declares "I am Heathcliff," affirming that the other is not simply an object of love but her own being, existing outside her body. The emotions of the characters function differently from those in conventional prose - they do not simply reside inside the characters but surround them, like storm clouds, creating an atmosphere of affect that operates beyond language. This passion is so intense and obsessive that it becomes a destructive force, eliminating everything around it while remaining unbreakable even after death.</p>
+        </div>
+        <div class="qblock reveal">
+          <span class="qindex">iii</span>
+          <h3 class="subhead">Why is this novel often called an "anti-novel"?</h3>
+          <p class="body">The novel is often described as a work that "baffles regular criticism" because of its deliberate refusal to conform to traditional ideas of virtue and literary morality. It offers no clear moral conclusion, instead unfolding a picture of brutal cruelty, sadism and wild force that shocked its first readers. Brontë's characters were described by critics as "savages, ruder than those who lived before Homer," which entirely contradicted the Victorian ideal of civilised behaviour and the "angel in the house." The novel's structure is non-linear and unusually complex, making it an "open masterpiece" that resists single, final definition. This hybrid nature and its rejection of established genre and ethical constraints make it a unique literary phenomenon, standing apart from all contemporary prose.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ BREATH — marquee ============================ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>He's more myself than I am. Whatever our souls are made of, his and mine are the same.</span>
+      <span>He's more myself than I am. Whatever our souls are made of, his and mine are the same.</span>
+      <span>He's more myself than I am. Whatever our souls are made of, his and mine are the same.</span>
+      <span>He's more myself than I am. Whatever our souls are made of, his and mine are the same.</span>
+      <span>He's more myself than I am. Whatever our souls are made of, his and mine are the same.</span>
+      <span>He's more myself than I am. Whatever our souls are made of, his and mine are the same.</span>
+      <span>He's more myself than I am. Whatever our souls are made of, his and mine are the same.</span>
+      <span>He's more myself than I am. Whatever our souls are made of, his and mine are the same.</span>
+    </div>
+  </div>
+
+  <!-- ============================ 03 — PSYCHOLOGY ============================ -->
+  <section class="section" data-screen-label="03 · Psychology">
+    <div class="wrap measure">
+      <div class="opener center reveal">
+        <span class="num">03</span>
+        <p class="label">Psychology</p>
+        <h2 class="stitle">Love or obsession?</h2>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">Can their relationship be called true love?</h3>
+        <p class="body">The true nature of the bond between Catherine and Heathcliff remains one of the great unresolved questions that has divided critics and readers for more than a century. For many it represents an unprecedented spiritual unity - the relationship of "mental twins" whose souls are identical in their essence. When Catherine cries "I am Heathcliff," she asserts that the other is not merely the object of love but her own being, existing outside the boundaries of her body. Yet this bond deviates sharply from conventional ideas of love, because it contains almost no empathy, mercy or care. It is rather a "half-savage love" that abandons culture and ethical norms, becoming an elemental force that resists human control.</p>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">Where is the line between love and obsession?</h3>
+        <p class="body">The line between love and obsession in the novel dissolves completely at the moment of Catherine's "self-betrayal," when she chooses social status over her own nature. From this point their feelings acquire an addictive character, where each person seeks absolute possession of the other. Heathcliff's obsession becomes demonic: he cannot live "without his soul," which Catherine embodies, and he turns his existence into eighteen years of torment, waiting for her ghost. This is not simply romantic passion but psychological dependency, where the desire to be together becomes a destructive force that brings only new wounds and "moral poison" to both.</p>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">Why does their bond destroy everyone around them?</h3>
+        <p class="body">This bond destroys everything around it because it is egocentric and refuses to acknowledge other people's right to happiness. The inner disorder in the souls of Catherine and Heathcliff creates a "storm atmosphere" that spreads outward, drawing even innocent family members into a vortex of suffering. Their passion operates like fire that consumes everything in its path, turning their homes into prisons and the lives of those around them into instruments for manipulation and revenge. Ultimately, their love - built on a shared experience of rejection and pain - becomes a personal hell where peace is only possible through total destruction of earthly life.</p>
+      </div>
+
+      <blockquote class="pull center reveal">
+        <p style="font-family: &quot;Playfair Display&quot;">I am Heathcliff - he's always, always in my mind - not as a pleasure, any more than I am always a pleasure to myself.</p>
+        <cite>Catherine Earnshaw</cite>
+      </blockquote>
+
+      <div class="hpanels reveal" id="hpanels">
+        <div class="hpanel">
+          <p class="panel-label">Interpretation 01</p>
+          <p>A spiritual union beyond earthly feeling.</p>
+        </div>
+        <div class="hpanel">
+          <p class="panel-label">Interpretation 02</p>
+          <p>A psychological dependency built on shared trauma.</p>
+        </div>
+        <div class="hpanel">
+          <p class="panel-label">Interpretation 03</p>
+          <p>A destructive force that refuses to be named.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 04 — ATMOSPHERE ============================ -->
+  <section class="section" data-screen-label="04 · Atmosphere">
+    <div class="wrap">
+      <div class="opener reveal" style="margin-bottom: clamp(48px, 6vw, 80px);">
+        <span class="num">04</span>
+        <p class="label">Atmosphere</p>
+        <h2 class="stitle">The dark aesthetic of the novel</h2>
+      </div>
+    </div>
+
+    <figure class="editorial reveal" style="margin-top: 0;">
+      <img src="images/moorland.jpg" alt="Panoramic moorland under a storm sky, a wind-bent tree beside a lone stone cottage." />
+      <figcaption class="caption">The moors do not reflect the emotion. They are the emotion.</figcaption>
+    </figure>
+
+    <div class="wrap split" style="margin-top: clamp(64px, 8vw, 110px);">
+      <div class="reveal">
+        <p class="label">The setting as system</p>
+      </div>
+      <div class="analysis">
+        <div class="qblock reveal" style="margin-top: 0;">
+          <span class="qindex">i</span>
+          <h3 class="subhead">How does the atmosphere of nature reflect the inner states of the characters?</h3>
+          <p class="body">The atmosphere of nature in Wuthering Heights is not decoration but the externalisation of the characters' inner chaos. The wild landscape of the peat moors serves as a symbol of uncontrollable threat, where the "atmospheric tumult" of the house itself directly mirrors the severe character of its inhabitants. The emotions of Heathcliff and Catherine are not enclosed within them but surround the characters like storm clouds, filling the story with an energy stronger than words or thoughts. Storms, tempests and sharp shifts in weather always presage dramatic change or catastrophe, turning nature into a silent but active witness to psychological upheaval and "explosive" emotional states.</p>
+        </div>
+        <div class="qblock reveal">
+          <span class="qindex">ii</span>
+          <h3 class="subhead">Why is the visual aesthetic of the novel so stark and contrasting?</h3>
+          <p class="body">The visual aesthetic of the novel is built on radical contrast that underlines the conflict between primal wildness and artificial civilisation. Wuthering Heights appears as a "dark, cold and grotesque" place on the hilltop, surrounded by "stunted firs" and thorny plants that indicate the absence of sunlight and warmth. In opposition, Thrushcross Grange in the valley is filled with light, comfort and gold, symbolising the refinement of Victorian life. This visual dissonance - "like lightning against moonshine" - becomes a metaphor for the incompatible worlds between which the characters are torn.</p>
+        </div>
+        <div class="qblock reveal">
+          <span class="qindex">iii</span>
+          <h3 class="subhead">How does the setting shape the mood of the story?</h3>
+          <p class="body">The setting in the novel functions as an autonomous system that dictates the behaviour of characters and forms a general atmosphere of anxious anticipation. The vast and dangerous moorland creates a sense of isolation and even "imprisonment," where the inhabitants are cut off from wider society and governed only by their own destructive patterns. The house itself, with its narrow windows and chains on the gate, resembles a prison for souls, and the mood of the story is constantly fed by this "dark spiritual atmosphere." In such surroundings, passion becomes a fatal force, and every element of the landscape - from the flagstones to the clouds in the night sky - is transformed into a painful reminder of the impossibility of peace.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 05 — SOCIETY ============================ -->
+  <section class="section" data-screen-label="05 · Society">
+    <div class="wrap split">
+      <div class="opener reveal">
+        <span class="num">05</span>
+        <p class="label">Society</p>
+        <h2 class="stitle">Class, hierarchy and isolation</h2>
+      </div>
+      <div class="analysis">
+        <div class="qblock reveal">
+          <span class="qindex">i</span>
+          <h3 class="subhead">How does class inequality shape Heathcliff's fate?</h3>
+          <p class="body">Heathcliff enters the world of the novel as "a child of the gutters," an outsider without a name or origin, whose fate depends entirely on the mercy of the patriarchal master. His status in the household remains precarious - from the favourite of Mr Earnshaw to a farmhand whom Hindley deliberately reduces to the level of a simple labourer, stripping him of education and the right to human dignity. Class inequality becomes for him not simply a social barrier but an instrument of psychological violence, which shapes his drive toward revenge. Society creates the "outsider" through the mechanism of rejection: Heathcliff is "foreign" in any system of coordinates, because he has no legitimate place in the hierarchy of inheritance.</p>
+        </div>
+        <div class="contrast reveal">
+          <div class="col">
+            <p class="col-head">Wuthering Heights</p>
+            <div class="lines">
+              <p>hilltop</p>
+              <p>wind and stone</p>
+              <p>isolation</p>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="col">
+            <p class="col-head">Thrushcross Grange</p>
+            <div class="lines">
+              <p>valley</p>
+              <p>light and gold</p>
+              <p>belonging</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="qblock reveal">
+          <span class="qindex">ii</span>
+          <h3 class="subhead">Why does social status outweigh feeling?</h3>
+          <p class="body">Catherine's choice in favour of Edgar Linton demonstrates the brutal reality of the Victorian era, where social status and material security outweigh emotional attachment. She understands that marriage to Heathcliff would "degrade" her, while a union with Linton is the only path to becoming "the greatest woman of the neighbourhood" and earning social respect. This self-betrayal is based on the illusion that status can be used as a tool: Catherine naively believes that her husband's money will help her "raise" Heathcliff and free him from her brother's power. In a world where a woman's intellectual freedom depends directly on her material position, sincere feeling becomes a dangerous luxury.</p>
+        </div>
+        <div class="qblock reveal">
+          <span class="qindex">iii</span>
+          <h3 class="subhead">How does society create outsiders?</h3>
+          <p class="body">The alienation of the characters is made visible through the radical contrast between two worlds: Wuthering Heights as a place of primal wildness and Thrushcross Grange as a symbol of refined but closed elite society. Entry into the Grange signifies the acquisition of status, but it also means isolation from one's own nature and "imprisonment" within social expectations. Society creates outsiders by marking them as "other" through the absence of culture or wealth, effectively stripping them of the right to compassion. Heathcliff returns as a wealthy gentleman only to use those same unjust laws of property to destroy the system that once rejected him.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 06 — VENGEANCE ============================ -->
+  <section class="section" data-screen-label="06 · Vengeance">
+    <div class="wrap measure">
+      <div class="opener center reveal">
+        <span class="num">06</span>
+        <p class="label">Vengeance</p>
+        <h2 class="stitle">Revenge as the driving force</h2>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">Why does Heathcliff choose revenge rather than forgiveness?</h3>
+        <p class="body">Heathcliff's revenge is not a sudden flare of anger but becomes the fundamental meaning of his existence once he understands the impossibility of union with Catherine in the real world. Having been "a child of the gutters" and the object of constant humiliation by Hindley, he accumulates bitterness over years, which eventually transforms into a cold and destructive strategy. His choice of revenge over forgiveness is explained by the psychology of "unlove" - in a world where love is associated only with pain and rejection, Heathcliff attempts to reclaim power through total domination. When Catherine chooses Edgar Linton for the sake of social status, it becomes for Heathcliff the final act of betrayal, transforming the former victim into a merciless oppressor.</p>
+      </div>
+
+      <div class="steps reveal">
+        <div class="step">
+          <span class="step-num">01</span>
+          <div class="step-body">
+            <h4 class="step-title">Humiliation</h4>
+            <p class="step-text">the years of degradation under Hindley.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <div class="step-body">
+            <h4 class="step-title">Return</h4>
+            <p class="step-text">wealth as a weapon, the system turned against itself.</p>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <div class="step-body">
+            <h4 class="step-title">Dissolution</h4>
+            <p class="step-text">revenge that consumes its own architect.</p>
+          </div>
+        </div>
+      </div>
+
+      <blockquote class="pull center reveal">
+        <p style="font-family: &quot;Playfair Display&quot;">I have no pity! The more the worms writhe, the more I yearn to crush out their entrails.</p>
+        <cite>Heathcliff</cite>
+      </blockquote>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">How does revenge transmit across generations?</h3>
+        <p class="body">The transmission of revenge across generations in the novel has the character of "repetition-compulsion," where children become hostages to the sins of their parents. Heathcliff consciously uses Hareton and young Cathy as instruments for completing his plan, making no distinction between the guilty and the innocent. In seeking retribution against Hindley, he systematically degrades Hindley's son Hareton, turning him into an uneducated farmhand - an exact reflection of his own humiliated past under the Earnshaws. His own son Linton he uses as a legal instrument for seizing the Linton estate, expertly manipulating the patriarchal laws of inheritance. In this way, revenge becomes an autonomous system that seeks to destroy the genealogy of both families.</p>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">Does Heathcliff have moral justification?</h3>
+        <p class="body">Heathcliff himself does not seek moral justification for his actions - he claims he has done no injustice, having only mirrored the cruelty of those around him. Yet his triumph proves illusory: he loses the "capacity to enjoy destruction" when he begins to see features of his Catherine in the eyes of the younger generation. Revenge as a driving force exhausts itself not through Heathcliff's external defeat but through his inner depletion and obsession with a supernatural bond. Ultimately, the cycle of violence is broken only through Hareton and young Cathy's capacity for forgiveness - a virtue unavailable to Heathcliff, but which becomes the only path toward the restoration of wholeness.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 07 — REPETITION (three-column) ============================ -->
+  <section class="section" data-screen-label="07 · Repetition">
+    <div class="wrap">
+      <div class="opener reveal">
+        <span class="num">07</span>
+        <p class="label">Repetition</p>
+        <h2 class="stitle">Echoes across generations</h2>
+      </div>
+
+      <div class="triad">
+        <div class="repeat-line" aria-hidden="true"></div>
+        <div class="gen reveal">
+          <div class="genhead">
+            <p class="label">Generation One</p>
+            <p class="names">Catherine <span class="amp">&amp;</span> Heathcliff</p>
+          </div>
+          <span class="qindex">Why does the story repeat through the children of the characters?</span>
+          <p class="body">The cyclical structure of the novel is driven by the mechanism of "repetition-compulsion," through which the psyche attempts to relive traumatic experience from the past in order to finally master the surplus of emotions that defeated the previous generation. This repetition is reinforced by a striking structural symmetry: key events in both generations occur with mathematical precision at the same ages - at 13, 16 and 19. There is also a process of "affective transmission," where emotional states and even specific linguistic patterns - such as whipping imagery or threats of murder - are passed transhistorically, compelling the children to unconsciously imitate the destructive patterns of the adults.</p>
+        </div>
+
+        <div class="gen reveal">
+          <div class="genhead">
+            <p class="label">Generation Two</p>
+            <p class="names">Young Cathy <span class="amp">&amp;</span> Hareton</p>
+          </div>
+          <span class="qindex">Can the new characters escape this cycle?</span>
+          <p class="body">The new characters - young Cathy and Hareton Earnshaw - receive the chance to escape this cycle through their capacity for forgiveness, a moral quality entirely absent from the relationships of the first generation. Unlike the elder Catherine, young Cathy demonstrates an "other-oriented" position, choosing compassion over egocentrism, which allows her to transform an enemy into an ally. Their union symbolises healing through integration: they combine the strength and nature of the Earnshaws with the intellectual qualities of the Lintons, and ultimately leave the dark Wuthering Heights to its ghosts, choosing life in the light of Thrushcross Grange.</p>
+        </div>
+
+        <div class="gen reveal">
+          <div class="genhead">
+            <p class="label">Commentary</p>
+            <p class="names">Fate <span class="amp">or</span> choice</p>
+          </div>
+          <span class="qindex">Is this a story of fate or conscious choice?</span>
+          <p class="body">This story is simultaneously fate and conscious choice: while the archetypal nature of the first generation gravitates toward tragedy, the development of the second generation demonstrates the path toward psychological liberation. Fatal determination appears in the fact that the children are born into the storm of others' conflicts - yet it is precisely their deliberate act of reconciliation that stops the mechanism of revenge. Ultimately, the novel argues that although the past shapes our environment, a conscious refusal to submit to the tyranny of our own passions allows the individual to become the master of their world rather than its victim.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 08 — GENDER ============================ -->
+  <section class="section" data-screen-label="08 · Gender">
+    <div class="quote-entry reveal">
+      <p class="big-quote">She was never meant to choose. She was meant to be chosen.</p>
+      <p class="note">editorial note, not a direct quotation from the novel</p>
+    </div>
+    <div class="wrap split">
+      <div class="opener reveal">
+        <span class="num">08</span>
+        <p class="label">Gender</p>
+        <h2 class="stitle">The role of women in the novel</h2>
+      </div>
+      <div class="analysis">
+        <div class="qblock reveal">
+          <span class="qindex">i</span>
+          <h3 class="subhead">Why does Catherine choose against love?</h3>
+          <p class="body">Catherine's choice in favour of Edgar Linton was not driven by fading feeling for Heathcliff but by a sharp conflict between her heart and her reason. She openly acknowledges that marriage to Heathcliff would "degrade her," since he possessed no wealth, no education and no social standing. Governed by social ambition to become "the greatest woman of the neighbourhood," she chooses material security over emotional desire. Catherine naively convinces herself that the status of Linton's wife will give her the power to "raise" Heathcliff and free him from her brother's tyranny - constructing the false illusion that she can possess both men simultaneously.</p>
+        </div>
+        <div class="qblock reveal">
+          <span class="qindex">ii</span>
+          <h3 class="subhead">How do social expectations constrain her?</h3>
+          <p class="body">The social expectations of the Victorian era confined Catherine within the rigid ideal of the "angel in the house," demanding from her passivity, delicacy and a focus on domestic comfort alone. Her five-week stay at Thrushcross Grange became a "programme of reform," where her wild, instinctual nature was systematically subdued through refined clothing and social manners. In a world where a woman's intellectual freedom depended directly on her material position, Catherine was forced to treat marriage as her only instrument of self-realisation - effectively transforming her home into a gilded cage and her true self into a sacrifice to social convention.</p>
+        </div>
+        <div class="qblock reveal">
+          <span class="qindex">iii</span>
+          <h3 class="subhead">Is she a victim or a participant in the tragedy?</h3>
+          <p class="body">Catherine appears simultaneously as a victim of patriarchal structures and as a participant in the tragedy through her act of "self-betrayal." As a victim, she suffers from the impossibility of reconciling her natural self with the demands of culture, which ultimately leads her to psychological breakdown and death. Yet by denying the inevitability of her break with Heathcliff and provoking conflict between him and Edgar, she becomes the driver of a destructive cycle that poisons the lives of everyone around her. Her final decision to "refuse adulthood" through illness and death is a form of radical protest - and simultaneously an acknowledgement of her own share of responsibility in creating a situation from which there was no earthly exit.</p>
+        </div>
+        <blockquote class="pull reveal">
+          <p style="font-family: &quot;Playfair Display&quot;">Whatever our souls are made of, his and mine are the same.</p>
+          <cite>Catherine Earnshaw</cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 09 — DEATH ============================ -->
+  <section class="section" data-screen-label="09 · Death">
+    <div class="wrap measure">
+      <div class="opener center reveal">
+        <span class="num">09</span>
+        <p class="label">Death</p>
+        <h2 class="stitle">Beyond life, beyond reason</h2>
+      </div>
+
+      <div class="qblock">
+        <h3 class="subhead reveal fade-only">Why is the theme of death so romanticised?</h3>
+        <p class="body reveal fade-only">The theme of death in the novel acquires a romantic quality because it appears as the only space for the final liberation of the "chainless soul" from earthly constraints and social limitations. In the Victorian world where their bond was ethically and socially impossible, death becomes not an ending but a transition to a metaphysical union where all identities - orphans, husbands, parents - dissolve and only "lovers" remain. Catherine experiences her body as a "shattered prison," and death as a return to the "lost paradise" of childhood and the boundless freedom of the moors, where her spirit will finally merge with Heathcliff's beyond physical pain and human law.</p>
+      </div>
+
+      <div class="qblock">
+        <h3 class="subhead reveal fade-only">Is there a connection between the characters after death?</h3>
+        <p class="body reveal fade-only">The connection between the characters after death is not mere speculation but the central ethical resolution of the novel, where death becomes an act of final fulfilment of their love. Heathcliff, consumed by "a strong faith in ghosts," spends years begging Catherine's spirit to haunt him rather than leave him in the abyss of solitude. Symbolic union is achieved through physical merging - Heathcliff instructs that the walls of their coffins be broken, so that their ashes intermingle, transforming their bodies into a single element of the earth. The ending confirms this bond through the testimony of local people who see two figures freely wandering the moors on every rainy night - symbolising their eternal existence outside the peace of the church.</p>
+      </div>
+
+      <div class="qblock">
+        <h3 class="subhead reveal fade-only">Why is the ending simultaneously calm and disturbing?</h3>
+        <p class="body reveal fade-only">The ending remains simultaneously calm and disturbing, creating a unique emotional dissonance that prevents the story from ever fully closing. The calm arises from a sense of the triumph of romantic union and the "quiet earth" beneath which the characters sleep, freed from rage and vengeance. Yet this calm is deceptive - Lockwood's final words about "unquiet slumbers" directly contradict the presence of the ghosts and the restlessness within the ground. The disturbance is sustained by the residual "surplus energy" of their passion, which refuses to be buried and continues to pulse through the surrounding landscape, leaving the reader with a vision of souls who have found no peace in the conventional heaven - but have found it in the elemental chaos of the moors.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ 10 — RELEVANCE ============================ -->
+  <section class="section" data-screen-label="10 · Relevance">
+    <div class="wrap measure">
+      <div class="opener center reveal">
+        <span class="num">10</span>
+        <p class="label">Relevance</p>
+        <h2 class="stitle">Why does this novel still resonate today?</h2>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">Why does a modern audience still connect with this story?</h3>
+        <p class="body">A modern audience continues to feel deep resonance with Wuthering Heights because Emily Brontë reveals psychological insights that scholars describe as "startlingly modern." The novel moves beyond simple narrative, focusing on intense internal states, psychological tension and emotional experience, which makes it an ideal foundation for conceptual reinterpretation. The story of Catherine and Heathcliff is experienced not simply as a plot but as a powerful investigation into the limits of human nature, where emotions do not reside inside the characters but surround them like storm clouds - an atmosphere that remains alive and magnetic for the reader today.</p>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">How do the themes of toxic relationships and trauma read now?</h3>
+        <p class="body">Today the themes of toxic relationships and trauma in the novel are read through the lens of psychoanalysis and concepts of addictive behaviour. What was once understood as an idealised passion is now frequently interpreted as a destructive force devoid of empathy, where love becomes a mask for obsession and vengeance. Researchers point to the role of childhood trauma - specifically the experience of "unlove" - in forming destructive adult patterns and the characters' inability to distinguish between the need for love and the fear of abandonment. The bond of Catherine and Heathcliff is understood as an "addictive attachment," where each seeks to absorb the other, making their existence impossible in the real world and transforming their love into a "personal hell."</p>
+      </div>
+
+      <div class="qblock reveal">
+        <h3 class="subhead">Has our perception of Heathcliff changed?</h3>
+        <p class="body">The perception of Heathcliff as a character has undergone significant evolution: from Victorian condemnation as a "demon" or "monster," to recognition of a complex figure who is simultaneously tyrant and victim. A modern reader is more likely to understand him as a deeply wounded person - a "child of the gutters" whose cruelty is the consequence of prolonged humiliation and social alienation. He is read not as an embodiment of metaphysical evil but as a symbolic outsider, whose rebellion against a rigid class system and the patriarchal laws of property remains a relevant commentary on social inequality. Heathcliff has been transformed into a figure that simultaneously provokes fear and compassion - embodying the inner conflict between the hunger for destruction and an infinite devotion to a lost ideal.</p>
+      </div>
+
+      <blockquote class="pull center reveal">
+        <p style="font-family: &quot;Playfair Display&quot;">He's more myself than I am. Whatever our souls are made of, his and mine are the same.</p>
+        <cite>Catherine Earnshaw</cite>
+      </blockquote>
+
+      <div class="closing reveal">
+        <div class="rule"></div>
+        <p class="manifesto">This is not a website. It is a space where design becomes narrative.</p>
+        <p class="credit">A Final Major Project by Emma Cherkasova / York College / 2025–26 / Interpreting Literature Through Interface Design</p>
+      </div>
+    </div>
+  </section>
+
+
+  <script>
+    // Arm reveal states only when JS runs (so content is visible if it doesn't).
+    document.documentElement.classList.add('armed');
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+
+    if (reduce) {
+      reveals.forEach(function (el) { el.classList.add('in'); });
+    } else {
+      // Scroll-position reveal — robust across environments where
+      // IntersectionObserver may not fire. Reveal once an element's top
+      // crosses 88% of the viewport height.
+      var pending = reveals.slice();
+      var checking = false;
+      function checkReveals() {
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        var trigger = vh * 0.88;
+        for (var i = pending.length - 1; i >= 0; i--) {
+          var el = pending[i];
+          var top = el.getBoundingClientRect().top;
+          if (top < trigger) {
+            el.classList.add('in');
+            pending.splice(i, 1);
+          }
+        }
+        checking = false;
+      }
+      function requestCheck() {
+        if (!checking) { window.requestAnimationFrame(checkReveals); checking = true; }
+      }
+      window.addEventListener('scroll', requestCheck, { passive: true });
+      window.addEventListener('resize', requestCheck);
+      window.addEventListener('load', checkReveals);
+      checkReveals();
+    }
+
+    // Left-edge progress: fill grows top→bottom.
+    const progress = document.getElementById('progress');
+    function updateProgress() {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop || document.body.scrollTop) / max * 100 : 0;
+      progress.style.height = pct + 'vh';
+    }
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('resize', updateProgress);
+    updateProgress();
+
+    // S03 — pointer drag-to-scroll for the interpretation panels (touch swipes natively).
+    const hp = document.getElementById('hpanels');
+    if (hp) {
+      let down = false, startX = 0, startScroll = 0, moved = false;
+      hp.addEventListener('pointerdown', function (e) {
+        down = true; moved = false;
+        startX = e.clientX;
+        startScroll = hp.scrollLeft;
+        hp.classList.add('dragging');
+      });
+      hp.addEventListener('pointermove', function (e) {
+        if (!down) return;
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 3) moved = true;
+        hp.scrollLeft = startScroll - dx;
+      });
+      function endDrag() {
+        if (!down) return;
+        down = false;
+        hp.classList.remove('dragging');
+      }
+      hp.addEventListener('pointerup', endDrag);
+      hp.addEventListener('pointercancel', endDrag);
+      hp.addEventListener('pointerleave', endDrag);
+      // prevent text selection while dragging
+      hp.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    }
+  </script>
+</body>
+</html>
