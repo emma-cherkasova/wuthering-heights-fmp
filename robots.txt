@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://emma-cherkasova.github.io/wuthering-heights-fmp/sitemap.xml
